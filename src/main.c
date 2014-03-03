@@ -5,7 +5,7 @@
 #include "weather.h"
 #include "main.h"
 
-static Window *window;
+static Window* window;
 
 GFont futura_18;
 GFont futura_25;
@@ -14,33 +14,33 @@ GFont futura_35;
 GFont futura_40;
 GFont futura_53;
 
-static Layer *statusbar_layer;
-static BitmapLayer *statusbar_battery_layer;
-static BitmapLayer *statusbar_connection_layer;
+static Layer* statusbar_layer;
+static BitmapLayer* statusbar_battery_layer;
+static BitmapLayer* statusbar_connection_layer;
 static uint32_t statusbar_battery_resource;
 static uint32_t statusbar_connection_resource;
-static GBitmap *statusbar_battery_bitmap = NULL;
-static GBitmap *statusbar_connection_bitmap = NULL;
+static GBitmap* statusbar_battery_bitmap = NULL;
+static GBitmap* statusbar_connection_bitmap = NULL;
 static GRect default_statusbar_frame;
 
-static TextLayer *time_layer;
+static TextLayer* time_layer;
 GRect default_time_frame;
 
-static TextLayer *date_layer;
+static TextLayer* date_layer;
 GRect default_date_frame;
 
-static Layer *weather_layer;
-static TextLayer *weather_temperature_layer;
-static BitmapLayer *weather_icon_layer;
-static GBitmap *weather_icon_bitmap = NULL;
+static Layer* weather_layer;
+static TextLayer* weather_temperature_layer;
+static BitmapLayer* weather_icon_layer;
+static GBitmap* weather_icon_bitmap = NULL;
 GRect default_weather_frame;
 
-static Preferences *prefs;
-static Weather *weather;
+static Preferences* prefs;
+static Weather* weather;
 
 
 
-uint32_t get_resource_for_weather_conditions(WeatherConditions  conditions) {
+uint32_t get_resource_for_weather_conditions(WeatherConditions conditions) {
 	bool is_day = conditions.flags & WEATHER_CONDITION_FLAGS_IS_DAY;
     switch(conditions.code) {
 		case WEATHER_CONDITIONS_CLEAR:
@@ -120,7 +120,7 @@ uint32_t get_resource_for_connection(bool bluetooth, bool internet) {
 
 
 
-GRect get_statusbar_frame(Preferences *prefs) {
+GRect get_statusbar_frame(Preferences* prefs) {
 	GRect frame = default_statusbar_frame;
 	
 	if(!prefs->statusbar)
@@ -128,7 +128,7 @@ GRect get_statusbar_frame(Preferences *prefs) {
 	return frame;
 }
 
-GRect get_time_frame(Preferences *prefs, bool weather_visible) {
+GRect get_time_frame(Preferences* prefs, bool weather_visible) {
 	GRect frame = default_time_frame;
 	
 	if(weather_visible && prefs->statusbar)
@@ -139,7 +139,7 @@ GRect get_time_frame(Preferences *prefs, bool weather_visible) {
 	return frame;
 }
 
-GRect get_date_frame(Preferences *prefs, bool weather_visible) {
+GRect get_date_frame(Preferences* prefs, bool weather_visible) {
 	GRect frame = default_date_frame;
 	
 	if(weather_visible && prefs->statusbar)
@@ -160,7 +160,7 @@ GRect get_weather_frame(bool weather_visible) {
 
 
 
-bool has_internet_connection(Weather *weather) {
+bool has_internet_connection(Weather* weather) {
 	// If weather has needed an update for a minute or over, then the
 	// user likely doesn't have an internet connection (since the
 	// phone should have already responded with new weather info).
@@ -170,7 +170,7 @@ bool has_internet_connection(Weather *weather) {
 
 
 
-void change_preferences(Preferences *old_prefs, Preferences *new_prefs) {
+void change_preferences(Preferences* old_prefs, Preferences* new_prefs) {
 	// old_prefs will be NULL for initialization (app first loaded)
 	if(old_prefs == NULL || old_prefs->temp_format != new_prefs->temp_format) {
 		if(!weather_needs_update(weather, new_prefs->weather_update_freq))
@@ -197,9 +197,9 @@ void change_preferences(Preferences *old_prefs, Preferences *new_prefs) {
 			set_weather_visible(!weather_needs_update(weather, new_prefs->weather_update_freq), false);
 		}
 		else {
-			PropertyAnimation *statusbar_animation = property_animation_create_layer_frame(statusbar_layer, NULL, &statusbar_frame);
-			PropertyAnimation *time_animation = property_animation_create_layer_frame(text_layer_get_layer(time_layer), NULL, &time_frame);
-			PropertyAnimation *date_animation = property_animation_create_layer_frame(text_layer_get_layer(date_layer), NULL, &date_frame);
+			PropertyAnimation* statusbar_animation = property_animation_create_layer_frame(statusbar_layer, NULL, &statusbar_frame);
+			PropertyAnimation* time_animation = property_animation_create_layer_frame(text_layer_get_layer(time_layer), NULL, &time_frame);
+			PropertyAnimation* date_animation = property_animation_create_layer_frame(text_layer_get_layer(date_layer), NULL, &date_frame);
 			
 			animation_set_delay(&statusbar_animation->animation, 0);
 			animation_set_delay(&time_animation->animation, 100);
@@ -232,9 +232,9 @@ void set_weather_visible(bool visible, bool animate) {
 		if(visible)
 			layer_set_hidden(weather_layer, false);
 		
-		PropertyAnimation *time_animation = property_animation_create_layer_frame(text_layer_get_layer(time_layer), NULL, &time_frame);
-		PropertyAnimation *date_animation = property_animation_create_layer_frame(text_layer_get_layer(date_layer), NULL, &date_frame);
-		PropertyAnimation *weather_animation = property_animation_create_layer_frame(weather_layer, NULL, &weather_frame);
+		PropertyAnimation* time_animation = property_animation_create_layer_frame(text_layer_get_layer(time_layer), NULL, &time_frame);
+		PropertyAnimation* date_animation = property_animation_create_layer_frame(text_layer_get_layer(date_layer), NULL, &date_frame);
+		PropertyAnimation* weather_animation = property_animation_create_layer_frame(weather_layer, NULL, &weather_frame);
 		
 		animation_set_delay(&time_animation->animation, 300);
 		animation_set_delay(&date_animation->animation, 150);
@@ -265,7 +265,7 @@ void set_weather_visible(bool visible, bool animate) {
 	}
 }
 
-void set_weather_visible_animation_stopped_handler(Animation *animation, bool finished, void *context) {
+void set_weather_visible_animation_stopped_handler(Animation* animation, bool finished, void* context) {
 	if(finished)
 		layer_set_hidden(weather_layer, context == 0);
 	animation_stopped_handler(animation, finished, context);
@@ -273,7 +273,7 @@ void set_weather_visible_animation_stopped_handler(Animation *animation, bool fi
 
 
 
-void update_weather_info(Weather *weather, bool animate) {
+void update_weather_info(Weather* weather, bool animate) {
     if(weather->conditions.code != WEATHER_CONDITIONS_UNAVAILABLE) {
         static char temperature_text[8];
 		int temperature = weather_convert_temperature(weather->temperature, prefs->temp_format);
@@ -326,22 +326,22 @@ void update_connection_info(bool bluetooth, bool internet) {
 
 
 
-void animation_stopped_handler(Animation *animation, bool finished, void *context) {
+void animation_stopped_handler(Animation* animation, bool finished, void* context) {
 	animation_destroy(animation);
 }
 
 
 
-void out_sent_handler(DictionaryIterator *sent, void *context) {
+void out_sent_handler(DictionaryIterator* sent, void* context) {
 }
 
-void out_failed_handler(DictionaryIterator *failed, AppMessageResult reason, void *context) {
+void out_failed_handler(DictionaryIterator* failed, AppMessageResult reason, void* context) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Sending message failed (reason: %d)", (int)reason);
 }
 
-void in_received_handler(DictionaryIterator *received, void *context) {
-	Tuple *set_weather = dict_find(received, SET_WEATHER_MSG_KEY);
-	Tuple *set_preferences = dict_find(received, SET_PREFERENCES_MSG_KEY);
+void in_received_handler(DictionaryIterator* received, void* context) {
+	Tuple* set_weather = dict_find(received, SET_WEATHER_MSG_KEY);
+	Tuple* set_preferences = dict_find(received, SET_PREFERENCES_MSG_KEY);
 	
 	if(set_weather) {
 		weather_set(weather, received);
@@ -361,7 +361,7 @@ void in_received_handler(DictionaryIterator *received, void *context) {
 	}
 }
 
-void in_dropped_handler(AppMessageResult reason, void *context) {	
+void in_dropped_handler(AppMessageResult reason, void* context) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Received message dropped (reason: %d)", (int)reason);
 }
 
@@ -376,8 +376,9 @@ unsigned long get_string_between_delimiters_at_index(char* buffer, size_t buffer
 	memset(buffer, 0, buffer_size);
 	
 	while(index > 0 && start < end) {
-		if(start[0] == delim)
+		if(start[0] == delim) {
 			index--;
+		}
 		start++;
 	}
 	
@@ -385,14 +386,18 @@ unsigned long get_string_between_delimiters_at_index(char* buffer, size_t buffer
 	while(start[length] != delim && start[length] != 0) {
 		length++;
 	}
+	// Prevent reading beyond the string
+	length = (length > str_length) ? str_length : length;
 	
-	length = (length > str_length) ? str_length : length;           // Prevent reading beyond the string
-	length++;                                                       // Make room for null character
-	length = (length + 1 > buffer_size) ? buffer_size - 1 : length; // Prevent buffer overflow
+	// Make room for null character
+	length++;
+	
+	// Prevent buffer overflow
+	length = (length + 1 > buffer_size) ? buffer_size - 1 : length;
 	
 	if(length > 1) {
 		memcpy(buffer, start, length - 1);
-		buffer[length] = 0; // Ensure that buffer ends with a null-terminating character
+		buffer[length] = '\0'; // Null-terminate
 	}
 	else {
 		buffer[0] = 0;
@@ -402,11 +407,11 @@ unsigned long get_string_between_delimiters_at_index(char* buffer, size_t buffer
 	return length;
 }
 
-void format_time(char* buffer, size_t buffer_length, struct tm *now, bool is_24h) {
+void format_time(char* buffer, size_t buffer_length, struct tm* now, bool is_24h) {
 	strftime(buffer, buffer_length, is_24h ? "%H:%M" : "%I:%M", now);
 }
 
-void format_date(char* buffer, size_t buffer_length, struct tm *now, Preferences *prefs) {
+void format_date(char* buffer, size_t buffer_length, struct tm* now, Preferences* prefs) {
 	int month, day_of_month, day_of_week;
 	char weekday[10], month_name[10];
 	
@@ -457,8 +462,8 @@ void init() {
     window_stack_push(window, true);
 }
 
-void window_load(Window *window) {
-    Layer *window_layer = window_get_root_layer(window);
+void window_load(Window* window) {
+    Layer* window_layer = window_get_root_layer(window);
     
     futura_18 = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_FUTURA_18));
     futura_25 = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_FUTURA_25));
@@ -527,7 +532,7 @@ void window_load(Window *window) {
 	handle_bluetooth(bluetooth_connection_service_peek());
 }
 
-void window_unload(Window *window) {
+void window_unload(Window* window) {
     text_layer_destroy(time_layer);
     text_layer_destroy(date_layer);
 	
@@ -559,7 +564,7 @@ void deinit() {
 
 
 
-void handle_tick(struct tm *now, TimeUnits units_changed) {
+void handle_tick(struct tm* now, TimeUnits units_changed) {
     if(units_changed & MINUTE_UNIT) {
         static char time_text[6];
 		format_time(time_text, sizeof(time_text), now, clock_is_24h_style());
@@ -613,7 +618,7 @@ void handle_bluetooth(bool connected) {
 
 void force_tick(TimeUnits units_changed) {
     time_t then = time(NULL);
-    struct tm *now = localtime(&then);
+    struct tm* now = localtime(&then);
 	
     handle_tick(now, units_changed);
 }

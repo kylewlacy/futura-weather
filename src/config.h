@@ -1,5 +1,5 @@
-#ifndef futura_weather_redux_config_h
-#define futura_weather_redux_config_h
+#ifndef futura_weather_config_h
+#define futura_weather_config_h
 
 enum AppMessageKey {
 	REQUEST_WEATHER_MSG_KEY         = 1,

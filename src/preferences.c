@@ -78,7 +78,7 @@ Preferences* preferences_load() {
 	return &prefs;
 }
 
-bool preferences_save(Preferences *prefs) {
+bool preferences_save(Preferences* prefs) {
 	status_t temp_format = persist_write_int(PREF_TEMP_FORMAT_PERSIST_KEY, prefs->temp_format);
 	status_t weather_update_freq = persist_write_int(PREF_WEATHER_UPDATE_FREQ_PERSIST_KEY, (int)prefs->weather_update_freq);
 	status_t statusbar = persist_write_bool(PREF_STATUSBAR_PERSIST_KEY, prefs->statusbar);
@@ -97,8 +97,8 @@ bool preferences_save(Preferences *prefs) {
 	return true;
 }
 
-void preferences_send(Preferences *prefs) {
-	DictionaryIterator *iter;
+void preferences_send(Preferences* prefs) {
+	DictionaryIterator* iter;
 	app_message_outbox_begin(&iter);
 	
 	Tuplet request = TupletInteger(SET_PREFERENCES_MSG_KEY, 1);
@@ -120,14 +120,14 @@ void preferences_send(Preferences *prefs) {
 	app_message_outbox_send();
 }
 
-void preferences_set(Preferences *prefs, DictionaryIterator *iter) {
-	Tuple *temp_format = dict_find(iter, TEMP_FORMAT_MSG_KEY);
-	Tuple *weather_update_frequency = dict_find(iter, WEATHER_UPDATE_FREQ_MSG_KEY);
-	Tuple *statusbar = dict_find(iter, STATUSBAR_MSG_KEY);
-	Tuple *weather_provider = dict_find(iter, WEATHER_PROVIDER_MSG_KEY);
-	Tuple *weather_outdated_time = dict_find(iter, WEATHER_OUTDATED_TIME_MSG_KEY);
-	Tuple *language_code = dict_find(iter, LANGUAGE_CODE_MSG_KEY);
-	Tuple *translation = dict_find(iter, TRANSLATION_MSG_KEY);
+void preferences_set(Preferences* prefs, DictionaryIterator* iter) {
+	Tuple* temp_format = dict_find(iter, TEMP_FORMAT_MSG_KEY);
+	Tuple* weather_update_frequency = dict_find(iter, WEATHER_UPDATE_FREQ_MSG_KEY);
+	Tuple* statusbar = dict_find(iter, STATUSBAR_MSG_KEY);
+	Tuple* weather_provider = dict_find(iter, WEATHER_PROVIDER_MSG_KEY);
+	Tuple* weather_outdated_time = dict_find(iter, WEATHER_OUTDATED_TIME_MSG_KEY);
+	Tuple* language_code = dict_find(iter, LANGUAGE_CODE_MSG_KEY);
+	Tuple* translation = dict_find(iter, TRANSLATION_MSG_KEY);
 	
 	if(temp_format != NULL) {
 		prefs->temp_format = temp_format->value->int32;

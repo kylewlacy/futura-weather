@@ -24,7 +24,7 @@ Weather* weather_load_cache() {
 	return &weather;
 }
 
-bool weather_save_cache(Weather *weather) {
+bool weather_save_cache(Weather* weather) {
 	status_t save_last_update = persist_write_int(WEATHER_CACHE_LAST_UPDATE_PERSIST_KEY, (int)weather->last_update_time);
 	status_t save_temperature = persist_write_int(WEATHER_CACHE_TEMPERATURE_PERSIST_KEY, weather->temperature);
 	status_t save_condition_code = persist_write_int(WEATHER_CACHE_CONDITION_CODE_PERSIST_KEY, weather->conditions.code);
@@ -39,13 +39,13 @@ bool weather_save_cache(Weather *weather) {
 
 
 
-bool weather_needs_update(Weather *weather, time_t update_freq) {
+bool weather_needs_update(Weather* weather, time_t update_freq) {
 	time_t now = time(NULL);
 	return now - weather->last_update_time >= update_freq;
 }
 
 void weather_request_update() {
-    DictionaryIterator *iter;
+    DictionaryIterator* iter;
     app_message_outbox_begin(&iter);
     
     Tuplet request = TupletInteger(REQUEST_WEATHER_MSG_KEY, 1);
@@ -54,10 +54,10 @@ void weather_request_update() {
     app_message_outbox_send();
 }
 
-void weather_set(Weather *weather, DictionaryIterator *iter) {
-	Tuple *condition_code = dict_find(iter, WEATHER_CONDITION_CODE_MSG_KEY);
-	Tuple *condition_flags = dict_find(iter, WEATHER_CONDITION_FLAGS_MSG_KEY);
-	Tuple *temperature = dict_find(iter, WEATHER_TEMPERATURE_MSG_KEY);
+void weather_set(Weather* weather, DictionaryIterator* iter) {
+	Tuple* condition_code = dict_find(iter, WEATHER_CONDITION_CODE_MSG_KEY);
+	Tuple* condition_flags = dict_find(iter, WEATHER_CONDITION_FLAGS_MSG_KEY);
+	Tuple* temperature = dict_find(iter, WEATHER_TEMPERATURE_MSG_KEY);
 	
 	if(condition_code != NULL)
 		weather->conditions.code = condition_code->value->int32;

@@ -1,11 +1,11 @@
 {
 	"uuid": "befe1765-6aee-4d85-a865-12ac989ee924",
 	"shortName": "Futura Weather",
-	"longName": "Futura Weather Redux",
+	"longName": "Futura Weather",
 	"capabilities": [ "location", "configurable" ],
-	"companyName": "Kyle Lacy",
-	"versionCode": 2,
-	"versionLabel": "1.0.1",
+	"companyName": "Kyle Lacy, et. al",
+	"versionCode": 3,
+	"versionLabel": "3.0.0",
 	"watchapp": {
 		"watchface": true
 	},
