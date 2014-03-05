@@ -508,7 +508,6 @@ function queryify(obj) {
 var configURL = "http://kylewlacy.github.io/futura-weather-redux/v3/preferences.html";
 
 var prefs = new Preferences();
-prefs.loadFromStorage();
 var weather = new Weather();
 var loc = new LocationHandler();
 
@@ -554,6 +553,7 @@ function sendPreferences(prefs) {
 
 
 Pebble.addEventListener("ready", function(e) {
+    prefs.loadFromStorage();
     fetchWeather();
 });
 
