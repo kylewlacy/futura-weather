@@ -30,6 +30,7 @@ static TextLayer* date_layer;
 GRect default_date_frame;
 
 static Layer* weather_layer;
+static InverterLayer* weather_inverter_layer;
 static TextLayer* weather_temperature_layer;
 static BitmapLayer* weather_icon_layer;
 static GBitmap* weather_icon_bitmap = NULL;
@@ -283,19 +284,19 @@ void update_weather_info(Weather* weather, bool animate) {
         
 		// TODO: Move this block to another method
         if(10 <= temperature && temperature <= 99) {
-            layer_set_frame(text_layer_get_layer(weather_temperature_layer), GRect(70, 19+3, 72, 80));
+            layer_set_frame(text_layer_get_layer(weather_temperature_layer), GRect(70, 9+3, 72, 70));
             text_layer_set_font(weather_temperature_layer, futura_35);
         }
         else if((0 <= temperature && temperature <= 9) || (-9 <= temperature && temperature <= -1)) {
-            layer_set_frame(text_layer_get_layer(weather_temperature_layer), GRect(70, 19, 72, 80));
+            layer_set_frame(text_layer_get_layer(weather_temperature_layer), GRect(70, 9, 72, 70));
             text_layer_set_font(weather_temperature_layer, futura_40);
         }
         else if((100 <= temperature) || (-99 <= temperature && temperature <= -10)) {
-            layer_set_frame(text_layer_get_layer(weather_temperature_layer), GRect(70, 19+3, 72, 80));
+            layer_set_frame(text_layer_get_layer(weather_temperature_layer), GRect(70, 9+3, 72, 70));
             text_layer_set_font(weather_temperature_layer, futura_28);
         }
         else {
-            layer_set_frame(text_layer_get_layer(weather_temperature_layer), GRect(70, 19+6, 72, 80));
+            layer_set_frame(text_layer_get_layer(weather_temperature_layer), GRect(70, 9+6, 72, 70));
             text_layer_set_font(weather_temperature_layer, futura_25);
         }
         
@@ -485,15 +486,23 @@ void window_load(Window* window) {
 	layer_add_child(window_layer, statusbar_layer);
 	
 	
-    
-    time_layer = text_layer_create(default_time_frame = GRect(0, 2, 144, 162));
+	
+	default_time_frame = GRect(0, 2, 144, 168-6);
+	if(prefs->flags.light_weather) {
+		default_date_frame = GRect(1, 66, 144, 168-62);
+	}
+	else {
+		default_date_frame = GRect(1, 74, 144, 168-62);
+	}
+	
+    time_layer = text_layer_create(default_time_frame);
     text_layer_set_text_alignment(time_layer, GTextAlignmentCenter);
     text_layer_set_background_color(time_layer, GColorClear);
     text_layer_set_text_color(time_layer, GColorWhite);
     text_layer_set_font(time_layer, futura_53);
     layer_add_child(window_layer, text_layer_get_layer(time_layer));
     
-    date_layer = text_layer_create(default_date_frame = GRect(1, 74, 144, 106));
+    date_layer = text_layer_create(default_date_frame);
     text_layer_set_text_alignment(date_layer, GTextAlignmentCenter);
     text_layer_set_background_color(date_layer, GColorClear);
     text_layer_set_text_color(date_layer, GColorWhite);
@@ -502,12 +511,12 @@ void window_load(Window* window) {
     
     
 	
-    weather_layer = layer_create(default_weather_frame = GRect(0, 90, 144, 80));
+    weather_layer = layer_create(default_weather_frame = GRect(0, 100, 144, 70));
     
-    weather_icon_layer = bitmap_layer_create(GRect(9, 13, 60, 60));
+    weather_icon_layer = bitmap_layer_create(GRect(9, 3, 60, 60));
     layer_add_child(weather_layer, bitmap_layer_get_layer(weather_icon_layer));
     
-    weather_temperature_layer = text_layer_create(GRect(70, 19, 72, 80));
+    weather_temperature_layer = text_layer_create(GRect(70, 9, 72, 70));
     text_layer_set_text_color(weather_temperature_layer, GColorWhite);
     text_layer_set_background_color(weather_temperature_layer, GColorClear);
     text_layer_set_font(weather_temperature_layer, futura_40);
@@ -515,6 +524,16 @@ void window_load(Window* window) {
     layer_add_child(weather_layer, text_layer_get_layer(weather_temperature_layer));
     
     layer_add_child(window_layer, weather_layer);
+	
+	if(prefs->flags.light_weather) {
+		weather_inverter_layer = inverter_layer_create(
+			GRect(
+				0, 0,
+				default_weather_frame.size.w, default_weather_frame.size.h
+			)
+		);
+		layer_add_child(weather_layer, inverter_layer_get_layer(weather_inverter_layer));
+	}
 	
 	
 	
@@ -541,11 +560,16 @@ void window_unload(Window* window) {
     text_layer_destroy(weather_temperature_layer);
     bitmap_layer_destroy(weather_icon_layer);
     layer_destroy(weather_layer);
+	if(weather_inverter_layer) {
+		inverter_layer_destroy(weather_inverter_layer);
+	}
 	
-	if(statusbar_battery_bitmap)
+	if(statusbar_battery_bitmap) {
 		gbitmap_destroy(statusbar_battery_bitmap);
-	if(statusbar_connection_bitmap)
+	}
+	if(statusbar_connection_bitmap) {
 		gbitmap_destroy(statusbar_connection_bitmap);
+	}
 	bitmap_layer_destroy(statusbar_battery_layer);
 	bitmap_layer_destroy(statusbar_connection_layer);
 	layer_destroy(statusbar_layer);
