@@ -3,7 +3,9 @@
 
 #include "pebble.h"
 
-#define ALL_UNITS SECOND_UNIT | MINUTE_UNIT | HOUR_UNIT | DAY_UNIT | MONTH_UNIT | YEAR_UNIT
+typedef enum {
+	ALL_UNITS = SECOND_UNIT | MINUTE_UNIT | HOUR_UNIT | DAY_UNIT | MONTH_UNIT | YEAR_UNIT
+} TimeUnitsExtended;
 
 void load_preferences();
 void save_preferences();
