@@ -16,11 +16,8 @@ GFont futura_53;
 
 static Layer* statusbar_layer;
 static BitmapLayer* statusbar_battery_layer;
-static BitmapLayer* statusbar_connection_layer;
 static uint32_t statusbar_battery_resource;
-static uint32_t statusbar_connection_resource;
 static GBitmap* statusbar_battery_bitmap = NULL;
-static GBitmap* statusbar_connection_bitmap = NULL;
 static GRect default_statusbar_frame;
 
 static TextLayer* time_layer;
@@ -111,12 +108,6 @@ uint32_t get_resource_for_battery_state(BatteryChargeState battery) {
 		return battery.is_charging ? RESOURCE_ID_CHARGING_10  : RESOURCE_ID_BATTERY_10;
 	
 	return battery.is_charging ? RESOURCE_ID_CHARGING_0 : RESOURCE_ID_BATTERY_0;
-}
-
-uint32_t get_resource_for_connection(bool bluetooth, bool internet) {
-	if(!bluetooth)
-		return RESOURCE_ID_NO_BLUETOOTH;
-	return internet ? RESOURCE_ID_BLUETOOTH_INTERNET : RESOURCE_ID_BLUETOOTH_NO_INTERNET;
 }
 
 
@@ -310,19 +301,7 @@ void update_weather_info(Weather* weather, bool animate) {
 }
 
 void update_connection_info(bool bluetooth, bool internet) {
-	uint32_t new_connection_resource = get_resource_for_connection(bluetooth, internet);
-	
-	if(!statusbar_connection_bitmap || new_connection_resource != statusbar_connection_resource) {
-		statusbar_connection_resource = new_connection_resource;
-		
-		if(statusbar_connection_bitmap)
-			gbitmap_destroy(statusbar_connection_bitmap);
-		statusbar_connection_bitmap = gbitmap_create_with_resource(statusbar_connection_resource);
-		bitmap_layer_set_bitmap(statusbar_connection_layer, statusbar_connection_bitmap);
-		
-		layer_mark_dirty(bitmap_layer_get_layer(statusbar_connection_layer));
-		layer_mark_dirty(statusbar_layer);
-	}
+	// TODO: Show layer in place of weather info
 }
 
 
@@ -480,9 +459,6 @@ void window_load(Window* window) {
 	statusbar_battery_layer = bitmap_layer_create(GRect(116, 3, 25, 11));
 	layer_add_child(statusbar_layer, bitmap_layer_get_layer(statusbar_battery_layer));
 	
-	statusbar_connection_layer = bitmap_layer_create(GRect(3, 3, 24, 11));
-	layer_add_child(statusbar_layer, bitmap_layer_get_layer(statusbar_connection_layer));
-	
 	layer_add_child(window_layer, statusbar_layer);
 	
 	
@@ -567,11 +543,7 @@ void window_unload(Window* window) {
 	if(statusbar_battery_bitmap) {
 		gbitmap_destroy(statusbar_battery_bitmap);
 	}
-	if(statusbar_connection_bitmap) {
-		gbitmap_destroy(statusbar_connection_bitmap);
-	}
 	bitmap_layer_destroy(statusbar_battery_layer);
-	bitmap_layer_destroy(statusbar_connection_layer);
 	layer_destroy(statusbar_layer);
     
     fonts_unload_custom_font(futura_18);

@@ -11,7 +11,6 @@ void send_preferences();
 
 uint32_t get_resource_for_weather_conditions(WeatherConditions conditions);
 uint32_t get_resource_for_battery_state(BatteryChargeState battery);
-uint32_t get_resource_for_connection(bool bluetooth, bool internet);
 
 GRect get_statusbar_frame(Preferences* prefs);
 GRect get_time_frame(Preferences* prefs, bool weather_visible);
