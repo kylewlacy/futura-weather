@@ -4,18 +4,18 @@
 #include "pebble.h"
 
 typedef struct {
-	TempFormat temp_format;
-	time_t weather_update_freq;
-	bool statusbar;
-	int weather_provider;
-	time_t weather_outdated_time;
-	int language_code;
-	char translation[256];
-	
-	// Compile-time options (see `preferences.c` for initialization)
-	const struct {
-		bool light_weather;
-	} flags;
+    TempFormat temp_format;
+    time_t weather_update_freq;
+    bool statusbar;
+    int weather_provider;
+    time_t weather_outdated_time;
+    int language_code;
+    char translation[256];
+    
+    // Compile-time options (see `preferences.c` for initialization)
+    const struct {
+        bool light_weather;
+    } flags;
 } Preferences;
 
 Preferences* preferences_load();

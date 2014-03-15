@@ -4,7 +4,8 @@
 #include "pebble.h"
 
 typedef enum {
-	ALL_UNITS = SECOND_UNIT | MINUTE_UNIT | HOUR_UNIT | DAY_UNIT | MONTH_UNIT | YEAR_UNIT
+    ALL_UNITS = SECOND_UNIT | MINUTE_UNIT | HOUR_UNIT
+              | DAY_UNIT | MONTH_UNIT | YEAR_UNIT
 } TimeUnitsExtended;
 
 void load_preferences();
@@ -23,20 +24,30 @@ bool has_internet_connection();
 
 void change_preferences(Preferences* old_prefs, Preferences* new_prefs);
 void set_weather_visible(bool visible, bool animate);
-void set_weather_visible_animation_stopped_handler(Animation *animation, bool finished, void *context);
+void set_weather_visible_animation_stopped_handler(
+    Animation *animation, bool finished, void *context
+);
 
 void update_weather_info(Weather* weather, bool animate);
 void update_connection_info(bool bluetooth, bool internet);
 
 void out_sent_handler(DictionaryIterator* sent, void* context);
-void out_failed_handler(DictionaryIterator* failed, AppMessageResult reason, void *context);
+void out_failed_handler(
+    DictionaryIterator* failed, AppMessageResult reason, void *context
+);
 void in_received_handler(DictionaryIterator* received, void* context);
 void in_dropped_handler(AppMessageResult reason, void* context);
 
-void animation_stopped_handler(Animation* animation, bool finished, void* context);
+void animation_stopped_handler(
+    Animation* animation, bool finished, void* context
+);
 
-void format_time(char* buffer, size_t buffer_length, struct tm* now, bool is_24h);
-void format_date(char* buffer, size_t buffer_length, struct tm* now, Preferences* prefs);
+void format_time(
+    char* buffer, size_t buffer_length, struct tm* now, bool is_24h
+);
+void format_date(
+    char* buffer, size_t buffer_length, struct tm* now, Preferences* prefs
+);
 
 int main();
 void init();
