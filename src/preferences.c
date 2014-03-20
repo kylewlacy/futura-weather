@@ -61,11 +61,6 @@ Preferences* preferences_load() {
         .translation = "Jan,Feb,Mar,Apr,May,Jun,"
                        "Jul,Aug,Sep,Oct,Nov,Dec,"
                        "Mon,Tue,Wed,Thu,Fri,Sat,Sun",
-        
-        // Compile-time flags
-        .flags = {
-            .light_weather = false // Weather is black against white if true
-        }
     };
     
     if(persist_exists(PREF_TEMP_FORMAT_PERSIST_KEY)) {

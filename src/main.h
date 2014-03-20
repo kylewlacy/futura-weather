@@ -12,14 +12,6 @@ void load_preferences();
 void save_preferences();
 void send_preferences();
 
-uint32_t get_resource_for_weather_conditions(WeatherConditions conditions);
-uint32_t get_resource_for_battery_state(BatteryChargeState battery);
-
-GRect get_statusbar_frame(Preferences* prefs);
-GRect get_time_frame(Preferences* prefs, bool weather_visible);
-GRect get_date_frame(Preferences* prefs, bool weather_visible);
-GRect get_weather_frame(bool weather_visible);
-
 bool has_internet_connection();
 
 void change_preferences(Preferences* old_prefs, Preferences* new_prefs);
@@ -37,10 +29,6 @@ void out_failed_handler(
 );
 void in_received_handler(DictionaryIterator* received, void* context);
 void in_dropped_handler(AppMessageResult reason, void* context);
-
-void animation_stopped_handler(
-    Animation* animation, bool finished, void* context
-);
 
 void format_time(
     char* buffer, size_t buffer_length, struct tm* now, bool is_24h

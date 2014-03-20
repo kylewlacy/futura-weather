@@ -2,6 +2,7 @@
 #define futura_weather_preferences_h
 
 #include "pebble.h"
+#include "config.h"
 
 typedef struct {
     TempFormat temp_format;
@@ -11,11 +12,6 @@ typedef struct {
     time_t weather_outdated_time;
     int language_code;
     char translation[256];
-    
-    // Compile-time options (see `preferences.c` for initialization)
-    const struct {
-        bool light_weather;
-    } flags;
 } Preferences;
 
 Preferences* preferences_load();

@@ -1,6 +1,10 @@
 #ifndef futura_weather_config_h
 #define futura_weather_config_h
 
+#define LIGHT_WEATHER // Inverted weather layer (black on white background)
+
+
+
 enum AppMessageKey {
     REQUEST_WEATHER_MSG_KEY         = 1,
     SET_WEATHER_MSG_KEY             = 2,
