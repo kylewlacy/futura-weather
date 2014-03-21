@@ -5,26 +5,14 @@
 #include "ui_state.h"
 #include "config.h"
 
-struct Watchface;
+typedef struct Watchface Watchface;
 
-typedef struct {
-    struct Watchface* watchface;
-    
-    Layer* layer;
-    
-    BitmapLayer* conditions_layer;
-    TextLayer* temperature_layer;
-    
-    GBitmap* conditions_icon;
-    uint32_t conditions_resource;
-    
-#ifdef LIGHT_WEATHER
-    InverterLayer* inverter_layer;
-#endif
-} WeatherLayer;
+typedef struct WeatherLayer WeatherLayer;
 
 WeatherLayer* weather_layer_create(struct Watchface* watchface);
 void weather_layer_destroy(WeatherLayer* weather_layer);
+
+Layer* weather_layer_get_layer(WeatherLayer* weather_layer);
 
 void weather_layer_set_visible(
     WeatherLayer* weather_layer, bool visible

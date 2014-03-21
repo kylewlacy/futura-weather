@@ -3,6 +3,13 @@
 #include "utils.h"
 #include "layers/date_time_layer.h"
 
+struct DateTimeLayer {
+    Watchface* watchface;
+    Layer* layer;
+    TextLayer* time_layer;
+    TextLayer* date_layer;
+};
+
 GRect default_time_frame, default_date_frame;
 
 GRect date_time_layer_get_intended_time_frame(
@@ -81,7 +88,7 @@ DateTimeLayer* date_time_layer_create(Watchface* watchface) {
     DateTimeLayer* date_time_layer = malloc(sizeof(DateTimeLayer));
     date_time_layer->watchface = watchface;
     
-    GRect frame = layer_get_frame(watchface->layer);
+    GRect frame = layer_get_frame(watchface_get_layer(watchface));
     
     date_time_layer->layer = layer_create(frame);
     
@@ -105,7 +112,7 @@ DateTimeLayer* date_time_layer_create(Watchface* watchface) {
         date_time_layer->time_layer, GColorWhite
     );
     text_layer_set_font(
-        date_time_layer->time_layer, watchface->fonts->futura_53
+        date_time_layer->time_layer, watchface_get_fonts(watchface)->futura_53
     );
     text_layer_set_text(date_time_layer->time_layer, "(null)");
     
@@ -119,7 +126,7 @@ DateTimeLayer* date_time_layer_create(Watchface* watchface) {
         date_time_layer->date_layer, GColorWhite
     );
     text_layer_set_font(
-        date_time_layer->date_layer, watchface->fonts->futura_18
+        date_time_layer->date_layer, watchface_get_fonts(watchface)->futura_18
     );
     
     layer_add_child(
@@ -165,14 +172,20 @@ void date_time_layer_update_time(
 
 
 
+Layer* date_time_layer_get_layer(DateTimeLayer* date_time_layer) {
+    return date_time_layer->layer;
+}
+
+
+
 void date_time_layer_update_frame(
     DateTimeLayer* date_time_layer
 ) {
     GRect time_frame = date_time_layer_get_intended_time_frame(
-        date_time_layer->watchface->ui_state
+        watchface_get_ui_state(date_time_layer->watchface)
     );
     GRect date_frame = date_time_layer_get_intended_date_frame(
-        date_time_layer->watchface->ui_state
+        watchface_get_ui_state(date_time_layer->watchface)
     );
 
     layer_set_frame(
@@ -187,7 +200,7 @@ Animation* date_time_layer_create_time_animation(
     DateTimeLayer* date_time_layer
 ) {
     GRect frame = date_time_layer_get_intended_time_frame(
-        date_time_layer->watchface->ui_state
+        watchface_get_ui_state(date_time_layer->watchface)
     );
     
     PropertyAnimation* property_animation =
@@ -212,7 +225,7 @@ Animation* date_time_layer_create_date_animation(
     DateTimeLayer* date_time_layer
 ) {
     GRect frame = date_time_layer_get_intended_date_frame(
-        date_time_layer->watchface->ui_state
+        watchface_get_ui_state(date_time_layer->watchface)
     );
     
     PropertyAnimation* property_animation =

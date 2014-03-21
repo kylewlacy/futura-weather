@@ -65,9 +65,13 @@ void update_weather_info(Weather* weather, bool animate) {
             weather->temperature, prefs->temp_format
         );
         
-        weather_layer_set_temperature(watchface->weather_layer, temperature);
+        weather_layer_set_temperature(
+            watchface_get_weather_layer(watchface),
+            temperature
+        );
         weather_layer_set_conditions(
-            watchface->weather_layer, weather->conditions
+            watchface_get_weather_layer(watchface),
+            weather->conditions
         );
         
         watchface_set_weather_visible(watchface, true, animate);
@@ -172,7 +176,7 @@ void window_load(Window* window) {
     
     watchface = watchface_create(window, initial_ui_state);
     
-    layer_add_child(window_layer, watchface->layer);
+    layer_add_child(window_layer, watchface_get_layer(watchface));
     
     change_preferences(NULL, prefs);
     
@@ -200,13 +204,13 @@ void deinit() {
 void handle_tick(struct tm* now, TimeUnits units_changed) {
     if(units_changed & MINUTE_UNIT) {
         date_time_layer_update_time(
-            watchface->date_time_layer, now, clock_is_24h_style()
+            watchface_get_date_time_layer(watchface), now, clock_is_24h_style()
         );
     }
     
     if(units_changed & DAY_UNIT) {
         date_time_layer_update_date(
-            watchface->date_time_layer, now, prefs->translation
+            watchface_get_date_time_layer(watchface), now, prefs->translation
         );
     }
     
@@ -214,7 +218,7 @@ void handle_tick(struct tm* now, TimeUnits units_changed) {
     if(outdated || weather_needs_update(weather, prefs->weather_update_freq)) {
         weather_request_update();
     }
-    if(outdated && watchface->ui_state->weather_visible) {
+    if(outdated && watchface_get_ui_state(watchface)->weather_visible) {
         watchface_set_weather_visible(watchface, false, true);
         update_connection_info(
             bluetooth_connection_service_peek(),
@@ -224,7 +228,9 @@ void handle_tick(struct tm* now, TimeUnits units_changed) {
 }
 
 void handle_battery(BatteryChargeState battery) {
-    statusbar_layer_handle_battery(watchface->statusbar_layer, battery);
+    statusbar_layer_handle_battery(
+        watchface_get_statusbar_layer(watchface), battery
+    );
 }
 
 void handle_bluetooth(bool connected) {

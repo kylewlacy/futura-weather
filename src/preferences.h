@@ -4,7 +4,7 @@
 #include "pebble.h"
 #include "config.h"
 
-typedef struct {
+typedef struct Preferences {
     TempFormat temp_format;
     time_t weather_update_freq;
     bool statusbar;

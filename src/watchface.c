@@ -1,6 +1,16 @@
 #include "utils.h"
 #include "watchface.h"
 
+struct Watchface {
+    Layer* layer;
+    FontCollection* fonts;
+    UIState* ui_state;
+    
+    StatusbarLayer* statusbar_layer;
+    DateTimeLayer* date_time_layer;
+    WeatherLayer* weather_layer;
+};
+
 Watchface* watchface_create(Window* window, UIState initial_ui_state) {
     Watchface* watchface = malloc(sizeof(Watchface));
     
@@ -18,13 +28,16 @@ Watchface* watchface_create(Window* window, UIState initial_ui_state) {
     watchface->weather_layer = weather_layer_create(watchface);
     
     layer_add_child(
-        watchface->layer, watchface->statusbar_layer->layer
+        watchface->layer,
+        statusbar_layer_get_layer(watchface->statusbar_layer)
     );
     layer_add_child(
-        watchface->layer, watchface->date_time_layer->layer
+        watchface->layer,
+        date_time_layer_get_layer(watchface->date_time_layer)
     );
     layer_add_child(
-        watchface->layer, watchface->weather_layer->layer
+        watchface->layer,
+        weather_layer_get_layer(watchface->weather_layer)
     );
     
     watchface_set_statusbar_visible(
@@ -49,6 +62,32 @@ void watchface_destroy(Watchface* watchface) {
     free(watchface);
 }
 
+Layer* watchface_get_layer(Watchface* watchface) {
+    return watchface->layer;
+}
+
+FontCollection* watchface_get_fonts(Watchface* watchface) {
+    return watchface->fonts;
+}
+
+UIState* watchface_get_ui_state(Watchface* watchface) {
+    return watchface->ui_state;
+}
+
+
+
+StatusbarLayer* watchface_get_statusbar_layer(Watchface* watchface) {
+    return watchface->statusbar_layer;
+}
+
+DateTimeLayer* watchface_get_date_time_layer(Watchface* watchface) {
+    return watchface->date_time_layer;
+}
+
+WeatherLayer* watchface_get_weather_layer(Watchface* watchface) {
+    return watchface->weather_layer;
+}
+
 
 
 void watchface_set_statusbar_visible(
@@ -57,7 +96,12 @@ void watchface_set_statusbar_visible(
     watchface->ui_state->statusbar_visible = visible;
     
     if(animate) {
-        layer_set_hidden(watchface->statusbar_layer->layer, false);
+        // The statusbar layer should be visible during animations. We don't
+        // use `weather_layer_set_visible` because that moves the frame
+        // (which we don't want)
+        layer_set_hidden(
+            statusbar_layer_get_layer(watchface->statusbar_layer), false
+        );
         
         // TODO: Hide statusbar after animation
         Animation* statusbar_animation = statusbar_layer_create_animation(
@@ -98,14 +142,6 @@ void watchface_set_statusbar_visible(
 }
 
 
-//void set_weather_visible_animation_stopped_handler(
-//    Animation* animation, bool finished, void* context
-//) {
-//    if(finished) {
-//        weather_layer_set_visible(weather_layer, context != 0);
-//    }
-//    cleanup_animation_stopped_handler(animation, finished, context);
-//}
 
 void watchface_set_weather_visible(
     Watchface* watchface, bool visible, bool animate
@@ -113,11 +149,13 @@ void watchface_set_weather_visible(
     watchface->ui_state->weather_visible = visible;
     
     if(animate) {
-        // The weather layer should be visible during animations
-        // NOTE: We don't use `weather_layer_set_visible` because that
-        // moves the frame (which we don't want)
+        // The weather layer should be visible during animations. We don't
+        // use `weather_layer_set_visible` because that moves the frame
+        // (which we don't want)
         // TODO: Move this out?
-        layer_set_hidden(watchface->weather_layer->layer, false);
+        layer_set_hidden(
+            weather_layer_get_layer(watchface->weather_layer), false
+        );
         
         Animation* time_animation = date_time_layer_create_time_animation(
             watchface->date_time_layer

@@ -3,7 +3,7 @@
 
 #include "pebble.h"
 
-typedef struct {
+typedef struct FontCollection {
     GFont futura_18;
     GFont futura_25;
     GFont futura_28;

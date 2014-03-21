@@ -5,20 +5,14 @@
 #include "weather.h"
 #include "ui_state.h"
 
-struct Watchface;
+typedef struct Watchface Watchface;
 
-typedef struct {
-    struct Watchface* watchface;
-    Layer* layer;
-    
-    BitmapLayer* battery_icon_layer;
-    GBitmap* battery_icon;
-    uint32_t battery_resource;
-} StatusbarLayer;
+typedef struct StatusbarLayer StatusbarLayer;
 
-StatusbarLayer* statusbar_layer_create(struct Watchface* watchface);
+StatusbarLayer* statusbar_layer_create(Watchface* watchface);
 void statusbar_layer_destroy(StatusbarLayer* statusbar_layer);
 
+Layer* statusbar_layer_get_layer(StatusbarLayer* statusbar_layer);
 
 Animation* statusbar_layer_create_animation(
     StatusbarLayer* statusbar_layer,

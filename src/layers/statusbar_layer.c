@@ -2,6 +2,15 @@
 #include "watchface.h"
 #include "statusbar_layer.h"
 
+struct StatusbarLayer {
+    Watchface* watchface;
+    Layer* layer;
+    
+    BitmapLayer* battery_icon_layer;
+    GBitmap* battery_icon;
+    uint32_t battery_resource;
+};
+
 GRect default_statusbar_frame;
 
 uint32_t statusbar_layer_get_resource_for_battery_state(
@@ -82,7 +91,7 @@ GRect statusbar_layer_get_intended_frame(bool visible) {
 
 StatusbarLayer* statusbar_layer_create(Watchface* watchface) {
     StatusbarLayer* statusbar_layer = malloc(sizeof(StatusbarLayer));
-    GSize window_size = layer_get_frame(watchface->layer).size;
+    GSize window_size = layer_get_frame(watchface_get_layer(watchface)).size;
     
     default_statusbar_frame = GRect(0, 0, window_size.w, 15);
     statusbar_layer->watchface = watchface;
@@ -98,7 +107,7 @@ StatusbarLayer* statusbar_layer_create(Watchface* watchface) {
     );
     
     statusbar_layer_set_visible(
-        statusbar_layer, watchface->ui_state->statusbar_visible
+        statusbar_layer, watchface_get_ui_state(watchface)->statusbar_visible
     );
     
     return statusbar_layer;
@@ -112,6 +121,12 @@ void statusbar_layer_destroy(StatusbarLayer* statusbar_layer) {
     
     layer_destroy(statusbar_layer->layer);
     free(statusbar_layer);
+}
+
+
+
+Layer* statusbar_layer_get_layer(StatusbarLayer* statusbar_layer) {
+    return statusbar_layer->layer;
 }
 
 

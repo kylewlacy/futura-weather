@@ -10,19 +10,18 @@
 #include "layers/date_time_layer.h"
 #include "layers/weather_layer.h"
 
-struct Watchface {
-    Layer* layer;
-    FontCollection* fonts;
-    UIState* ui_state;
-    
-    StatusbarLayer* statusbar_layer;
-    DateTimeLayer* date_time_layer;
-    WeatherLayer* weather_layer;
-};
 typedef struct Watchface Watchface;
 
 Watchface* watchface_create(Window* window, UIState initial_ui_state);
 void watchface_destroy(Watchface* watchface);
+
+Layer* watchface_get_layer(Watchface* watchface);
+FontCollection* watchface_get_fonts(Watchface* watchface);
+UIState* watchface_get_ui_state(Watchface* watchface);
+
+StatusbarLayer* watchface_get_statusbar_layer(Watchface* watchface);
+DateTimeLayer* watchface_get_date_time_layer(Watchface* watchface);
+WeatherLayer* watchface_get_weather_layer(Watchface* watchface);
 
 void watchface_set_statusbar_visible(
     Watchface* watchface, bool visible, bool animate

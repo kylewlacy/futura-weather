@@ -4,6 +4,22 @@
 
 GRect default_weather_frame;
 
+struct WeatherLayer {
+    Watchface* watchface;
+    
+    Layer* layer;
+    
+    BitmapLayer* conditions_layer;
+    TextLayer* temperature_layer;
+    
+    GBitmap* conditions_icon;
+    uint32_t conditions_resource;
+    
+#ifdef LIGHT_WEATHER
+    InverterLayer* inverter_layer;
+#endif
+};
+
 uint32_t weather_layer_get_resource_for_conditions(
     WeatherConditions conditions
 ) {
@@ -87,7 +103,8 @@ WeatherLayer* weather_layer_create(Watchface* watchface) {
         weather_layer->temperature_layer, GColorClear
     );
     text_layer_set_font(
-        weather_layer->temperature_layer, watchface->fonts->futura_40
+        weather_layer->temperature_layer,
+        watchface_get_fonts(watchface)->futura_40
     );
     text_layer_set_text_alignment(
         weather_layer->temperature_layer, GTextAlignmentRight
@@ -117,7 +134,7 @@ WeatherLayer* weather_layer_create(Watchface* watchface) {
 #endif
     
     weather_layer_set_visible(
-        weather_layer, watchface->ui_state->weather_visible
+        weather_layer, watchface_get_ui_state(watchface)->weather_visible
     );
     
     
@@ -139,6 +156,12 @@ void weather_layer_destroy(WeatherLayer* weather_layer) {
     layer_destroy(weather_layer->layer);
     
     free(weather_layer);
+}
+
+
+
+Layer* weather_layer_get_layer(WeatherLayer* weather_layer) {
+    return weather_layer->layer;
 }
 
 
@@ -213,7 +236,7 @@ void weather_layer_update_temperature_font(
         );
         text_layer_set_font(
             weather_layer->temperature_layer,
-            weather_layer->watchface->fonts->futura_35
+            watchface_get_fonts(weather_layer->watchface)->futura_35
         );
     }
     else if(
@@ -226,7 +249,7 @@ void weather_layer_update_temperature_font(
         );
         text_layer_set_font(
             weather_layer->temperature_layer,
-            weather_layer->watchface->fonts->futura_40
+            watchface_get_fonts(weather_layer->watchface)->futura_40
         );
     }
     else if(
@@ -239,7 +262,7 @@ void weather_layer_update_temperature_font(
         );
         text_layer_set_font(
             weather_layer->temperature_layer,
-            weather_layer->watchface->fonts->futura_28
+            watchface_get_fonts(weather_layer->watchface)->futura_28
         );
     }
     else {
@@ -249,7 +272,7 @@ void weather_layer_update_temperature_font(
         );
         text_layer_set_font(
             weather_layer->temperature_layer,
-            weather_layer->watchface->fonts->futura_25
+            watchface_get_fonts(weather_layer->watchface)->futura_25
         );
     }
 }

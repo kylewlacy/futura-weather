@@ -27,7 +27,7 @@ typedef enum {
     WEATHER_CONDITION_FLAGS_IS_DAY = 1 << 0
 } WeatherConditionFlags;
 
-typedef struct {
+typedef struct WeatherConditions {
     WeatherConditionCode code;
     WeatherConditionFlags flags;
 } WeatherConditions;
