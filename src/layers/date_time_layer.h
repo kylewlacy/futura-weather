@@ -16,6 +16,15 @@ typedef struct {
 DateTimeLayer* date_time_layer_create(struct Watchface* watchface);
 void date_time_layer_destroy(DateTimeLayer* date_time_layer);
 
+void date_time_layer_update_date(
+    DateTimeLayer* date_time_layer,
+    struct tm* now, char* translation
+);
+void date_time_layer_update_time(
+    DateTimeLayer* date_time_layer,
+    struct tm* now, bool is_24h
+);
+
 void date_time_layer_update_frame(
     DateTimeLayer* date_time_layer
 );

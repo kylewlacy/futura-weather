@@ -130,91 +130,6 @@ void in_dropped_handler(AppMessageResult reason, void* context) {
 
 
 
-// TODO: Move this somewhere else
-unsigned long get_string_between_delimiters_at_index(
-    char* buffer, size_t buffer_size,
-    char* str, char delim, unsigned long index
-) {
-    char* start = str;
-    unsigned long str_length = strlen(str);
-    char* end = str + str_length;
-    
-    memset(buffer, 0, buffer_size);
-    
-    while(index > 0 && start < end) {
-        if(start[0] == delim) {
-            index--;
-        }
-        start++;
-    }
-    
-    unsigned long length = 0;
-    while(start[length] != delim && start[length] != 0) {
-        length++;
-    }
-    // Prevent reading beyond the string
-    length = (length > str_length) ? str_length : length;
-    
-    // Make room for null character
-    length++;
-    
-    // Prevent buffer overflow
-    length = (length + 1 > buffer_size) ? buffer_size - 1 : length;
-    
-    if(length > 1) {
-        memcpy(buffer, start, length - 1);
-        buffer[length] = '\0'; // Null-terminate
-    }
-    else {
-        buffer[0] = 0;
-        length = 0;
-    }
-    
-    return length;
-}
-
-void format_time(
-    char* buffer, size_t buffer_length, struct tm* now, bool is_24h
-) {
-    strftime(buffer, buffer_length, is_24h ? "%H:%M" : "%I:%M", now);
-}
-
-void format_date(
-    char* buffer, size_t buffer_length, struct tm* now, Preferences* prefs
-) {
-    int month, day_of_month, day_of_week;
-    char weekday[10], month_name[10];
-    
-    month = now->tm_mon;
-    day_of_month = now->tm_mday;
-    // tm_wday defines 0 as Sunday, we want 0 as Monday
-    day_of_week = ((now->tm_wday + 6) % 7);
-    
-    get_string_between_delimiters_at_index(
-        weekday, sizeof(weekday),
-        prefs->translation, ',', day_of_week + 12
-    );
-    get_string_between_delimiters_at_index(
-        month_name, sizeof(month_name),
-        prefs->translation, ',', month
-    );
-    
-    snprintf(
-        buffer, buffer_length, "%s %s %d", weekday, month_name, day_of_month
-    );
-    
-    if(strlen(buffer) <= 0) {
-        APP_LOG(
-            APP_LOG_LEVEL_WARNING,
-            "Failed to interpret translation %d (%s)",
-            prefs->language_code, prefs->translation
-        );
-        strftime(buffer, buffer_length, "%a %b %d", now); // Fallback
-    }
-}
-
-
-
 int main() {
     init();
     app_event_loop();
@@ -284,22 +199,14 @@ void deinit() {
 
 void handle_tick(struct tm* now, TimeUnits units_changed) {
     if(units_changed & MINUTE_UNIT) {
-        static char time_text[6];
-        format_time(time_text, sizeof(time_text), now, clock_is_24h_style());
-        
-        text_layer_set_text(
-            watchface->date_time_layer->time_layer, time_text
+        date_time_layer_update_time(
+            watchface->date_time_layer, now, clock_is_24h_style()
         );
     }
     
     if(units_changed & DAY_UNIT) {
-        // 18 characters should be enougth to fit the
-        // most common language formats
-        static char date_text[18];
-        format_date(date_text, sizeof(date_text), now, prefs);
-        
-        text_layer_set_text(
-            watchface->date_time_layer->date_layer, date_text
+        date_time_layer_update_date(
+            watchface->date_time_layer, now, prefs->translation
         );
     }
     
