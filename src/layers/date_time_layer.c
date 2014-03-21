@@ -171,8 +171,21 @@ void date_time_layer_update_time(
 }
 
 
+Watchface* date_time_layer_get_watchface(
+    DateTimeLayer* date_time_layer
+) {
+    return date_time_layer->watchface;
+}
 
-Layer* date_time_layer_get_layer(DateTimeLayer* date_time_layer) {
+Layer* date_time_layer_get_layer(
+    DateTimeLayer* date_time_layer
+) {
+    return date_time_layer->layer;
+}
+
+Layer* date_time_layer_get_root_layer(
+    DateTimeLayer* date_time_layer
+) {
     return date_time_layer->layer;
 }
 

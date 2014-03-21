@@ -16,6 +16,7 @@ Watchface* watchface_create(Window* window, UIState initial_ui_state);
 void watchface_destroy(Watchface* watchface);
 
 Layer* watchface_get_layer(Watchface* watchface);
+Layer* watchface_get_root_layer(Watchface* watchface);
 FontCollection* watchface_get_fonts(Watchface* watchface);
 UIState* watchface_get_ui_state(Watchface* watchface);
 

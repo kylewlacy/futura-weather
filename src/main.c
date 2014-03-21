@@ -176,7 +176,9 @@ void window_load(Window* window) {
     
     watchface = watchface_create(window, initial_ui_state);
     
-    layer_add_child(window_layer, watchface_get_layer(watchface));
+    layer_add_child(
+        window_layer, watchface_get_root_layer(watchface)
+    );
     
     change_preferences(NULL, prefs);
     

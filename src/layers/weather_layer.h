@@ -12,7 +12,15 @@ typedef struct WeatherLayer WeatherLayer;
 WeatherLayer* weather_layer_create(struct Watchface* watchface);
 void weather_layer_destroy(WeatherLayer* weather_layer);
 
-Layer* weather_layer_get_layer(WeatherLayer* weather_layer);
+Watchface* weather_layer_get_watchface(
+    WeatherLayer* weather_layer
+);
+Layer* weather_layer_get_layer(
+    WeatherLayer* weather_layer
+);
+Layer* weather_layer_get_root_layer(
+    WeatherLayer* weather_layer
+);
 
 void weather_layer_set_visible(
     WeatherLayer* weather_layer, bool visible

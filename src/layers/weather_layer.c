@@ -1,23 +1,19 @@
 #include "watchface.h"
 #include "utils.h"
+#include "auxiliary_layer.h"
 #include "layers/weather_layer.h"
 
 GRect default_weather_frame;
+GRect screen_size;
 
 struct WeatherLayer {
-    Watchface* watchface;
-    
-    Layer* layer;
+    AuxiliaryLayer* auxiliary_layer;
     
     BitmapLayer* conditions_layer;
     TextLayer* temperature_layer;
     
     GBitmap* conditions_icon;
     uint32_t conditions_resource;
-    
-#ifdef LIGHT_WEATHER
-    InverterLayer* inverter_layer;
-#endif
 };
 
 uint32_t weather_layer_get_resource_for_conditions(
@@ -77,7 +73,7 @@ GRect weather_layer_get_intended_frame(bool visible) {
     GRect frame = default_weather_frame;
     
     if(!visible) {
-        frame.origin.y = 168;
+        frame.origin.y = screen_size.size.h;
     }
     return frame;
 }
@@ -85,13 +81,24 @@ GRect weather_layer_get_intended_frame(bool visible) {
 
 
 WeatherLayer* weather_layer_create(Watchface* watchface) {
-    // TODO: Procedural size
-    default_weather_frame = GRect(0, 100, 144, 70);
+    // This is a global variable because the frame of `watchface->layer`
+    // is the size of Pebble's screen (to remove hard-coded screen contsants)
+    screen_size = layer_get_frame(watchface_get_layer(watchface));
+    default_weather_frame = GRect(0, 100, screen_size.size.w, 70);
     
     WeatherLayer* weather_layer = malloc(sizeof(WeatherLayer));
-    weather_layer->watchface = watchface;
     
-    weather_layer->layer = layer_create(default_weather_frame);
+#ifdef LIGHT_WEATHER
+    bool inverted = true;
+#else
+    bool inverted = false;
+#endif
+    bool visible =
+        watchface_get_ui_state(watchface)->weather_visible;
+    
+    weather_layer->auxiliary_layer = auxiliary_layer_create(
+        watchface, inverted, visible
+    );
     
     weather_layer->conditions_layer = bitmap_layer_create(GRect(9, 3, 60, 60));
     
@@ -111,41 +118,21 @@ WeatherLayer* weather_layer_create(Watchface* watchface) {
     );
     
     layer_add_child(
-        weather_layer->layer,
+        weather_layer_get_layer(weather_layer),
         bitmap_layer_get_layer(weather_layer->conditions_layer)
     );
     layer_add_child(
-        weather_layer->layer,
+        weather_layer_get_layer(weather_layer),
         text_layer_get_layer(weather_layer->temperature_layer)
     );
     
-#ifdef LIGHT_WEATHER
-    weather_layer->inverter_layer = inverter_layer_create(
-        GRect(
-            0,                            0,
-            default_weather_frame.size.w, default_weather_frame.size.h
-        )
-    );
-    
-    layer_add_child(
-        weather_layer->layer,
-        inverter_layer_get_layer(weather_layer->inverter_layer)
-    );
-#endif
-    
-    weather_layer_set_visible(
-        weather_layer, watchface_get_ui_state(watchface)->weather_visible
-    );
+    weather_layer_set_visible(weather_layer, visible);
     
     
     return weather_layer;
 }
 
 void weather_layer_destroy(WeatherLayer* weather_layer) {
-#ifdef LIGHT_WEATHER
-    inverter_layer_destroy(weather_layer->inverter_layer);
-#endif
-    
     text_layer_destroy(weather_layer->temperature_layer);
     
     if(weather_layer->conditions_icon != NULL) {
@@ -153,75 +140,53 @@ void weather_layer_destroy(WeatherLayer* weather_layer) {
     }
     bitmap_layer_destroy(weather_layer->conditions_layer);
     
-    layer_destroy(weather_layer->layer);
+    auxiliary_layer_destroy(weather_layer->auxiliary_layer);
     
     free(weather_layer);
 }
 
 
 
-Layer* weather_layer_get_layer(WeatherLayer* weather_layer) {
-    return weather_layer->layer;
-}
-
-
-
-struct SetVisibleAnimationContext {
-    WeatherLayer* weather_layer;
-    bool visible;
-};
-
-void weather_layer_set_visible_animation_stopped_handler(
-    Animation* animation, bool finished, void* context
+Watchface* weather_layer_get_watchface(
+    WeatherLayer* weather_layer
 ) {
-    struct SetVisibleAnimationContext* ctx =
-        (struct SetVisibleAnimationContext*)context;
-    
-    if(finished) {
-        weather_layer_set_visible(ctx->weather_layer, ctx->visible);
-    
-        cleanup_animation_stopped_handler(animation, finished, context);
-        free(ctx);
-    }
+    return auxiliary_layer_get_watchface(
+        weather_layer->auxiliary_layer
+    );
 }
+
+Layer* weather_layer_get_layer(
+    WeatherLayer* weather_layer
+) {
+    return auxiliary_layer_get_layer(
+        weather_layer->auxiliary_layer
+    );
+}
+
+Layer* weather_layer_get_root_layer(
+    WeatherLayer* weather_layer
+) {
+    return auxiliary_layer_get_root_layer(
+        weather_layer->auxiliary_layer
+    );
+}
+
+
 
 void weather_layer_set_visible(
     WeatherLayer* weather_layer, bool visible
 ) {
-    GRect frame = weather_layer_get_intended_frame(visible);
-    
-    layer_set_frame(weather_layer->layer, frame);
-    layer_set_hidden(weather_layer->layer, !visible);
+    auxiliary_layer_set_visible(
+        weather_layer->auxiliary_layer, visible
+    );
 }
 
 Animation* weather_layer_create_animation(
     WeatherLayer* weather_layer, bool visible
 ) {
-    GRect frame = weather_layer_get_intended_frame(visible);
-    
-    PropertyAnimation* property_animation =
-        property_animation_create_layer_frame(
-            weather_layer->layer,
-            NULL, &frame
-        );
-    
-    struct SetVisibleAnimationContext* context = malloc(
-        sizeof(struct SetVisibleAnimationContext)
+    return auxiliary_layer_create_animation(
+        weather_layer->auxiliary_layer, visible
     );
-    
-    context->weather_layer = weather_layer;
-    context->visible = visible;
-    
-    animation_set_handlers(
-        &property_animation->animation,
-        (AnimationHandlers) {
-            .stopped = weather_layer_set_visible_animation_stopped_handler
-        },
-        context
-    );
-    animation_set_duration(&property_animation->animation, 500);
-    
-    return &property_animation->animation;
 }
 
 
@@ -236,7 +201,9 @@ void weather_layer_update_temperature_font(
         );
         text_layer_set_font(
             weather_layer->temperature_layer,
-            watchface_get_fonts(weather_layer->watchface)->futura_35
+            watchface_get_fonts(
+                weather_layer_get_watchface(weather_layer)
+            )->futura_35
         );
     }
     else if(
@@ -249,7 +216,9 @@ void weather_layer_update_temperature_font(
         );
         text_layer_set_font(
             weather_layer->temperature_layer,
-            watchface_get_fonts(weather_layer->watchface)->futura_40
+            watchface_get_fonts(
+                weather_layer_get_watchface(weather_layer)
+            )->futura_40
         );
     }
     else if(
@@ -262,7 +231,9 @@ void weather_layer_update_temperature_font(
         );
         text_layer_set_font(
             weather_layer->temperature_layer,
-            watchface_get_fonts(weather_layer->watchface)->futura_28
+            watchface_get_fonts(
+                weather_layer_get_watchface(weather_layer)
+            )->futura_28
         );
     }
     else {
@@ -272,7 +243,9 @@ void weather_layer_update_temperature_font(
         );
         text_layer_set_font(
             weather_layer->temperature_layer,
-            watchface_get_fonts(weather_layer->watchface)->futura_25
+            watchface_get_fonts(
+                weather_layer_get_watchface(weather_layer)
+            )->futura_25
         );
     }
 }

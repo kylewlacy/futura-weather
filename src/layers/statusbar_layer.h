@@ -12,7 +12,15 @@ typedef struct StatusbarLayer StatusbarLayer;
 StatusbarLayer* statusbar_layer_create(Watchface* watchface);
 void statusbar_layer_destroy(StatusbarLayer* statusbar_layer);
 
-Layer* statusbar_layer_get_layer(StatusbarLayer* statusbar_layer);
+Watchface* statusbar_layer_get_watchface(
+    StatusbarLayer* statusbar_layer
+);
+Layer* statusbar_layer_get_layer(
+    StatusbarLayer* statusbar_layer
+);
+Layer* statusbar_layer_get_root_layer(
+    StatusbarLayer* statusbar_layer
+);
 
 Animation* statusbar_layer_create_animation(
     StatusbarLayer* statusbar_layer,

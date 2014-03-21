@@ -29,15 +29,15 @@ Watchface* watchface_create(Window* window, UIState initial_ui_state) {
     
     layer_add_child(
         watchface->layer,
-        statusbar_layer_get_layer(watchface->statusbar_layer)
+        statusbar_layer_get_root_layer(watchface->statusbar_layer)
     );
     layer_add_child(
         watchface->layer,
-        date_time_layer_get_layer(watchface->date_time_layer)
+        date_time_layer_get_root_layer(watchface->date_time_layer)
     );
     layer_add_child(
         watchface->layer,
-        weather_layer_get_layer(watchface->weather_layer)
+        weather_layer_get_root_layer(watchface->weather_layer)
     );
     
     watchface_set_statusbar_visible(
@@ -63,6 +63,10 @@ void watchface_destroy(Watchface* watchface) {
 }
 
 Layer* watchface_get_layer(Watchface* watchface) {
+    return watchface->layer;
+}
+
+Layer* watchface_get_root_layer(Watchface* watchface) {
     return watchface->layer;
 }
 

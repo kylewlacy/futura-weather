@@ -125,7 +125,21 @@ void statusbar_layer_destroy(StatusbarLayer* statusbar_layer) {
 
 
 
-Layer* statusbar_layer_get_layer(StatusbarLayer* statusbar_layer) {
+Watchface* statusbar_layer_get_watchfaec(
+    StatusbarLayer* statusbar_layer
+) {
+    return statusbar_layer->watchface;
+}
+
+Layer* statusbar_layer_get_layer(
+    StatusbarLayer* statusbar_layer
+) {
+    return statusbar_layer->layer;
+}
+
+Layer* statusbar_layer_get_root_layer(
+    StatusbarLayer* statusbar_layer
+) {
     return statusbar_layer->layer;
 }
 

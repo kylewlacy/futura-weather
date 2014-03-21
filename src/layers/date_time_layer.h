@@ -20,7 +20,15 @@ void date_time_layer_update_time(
     struct tm* now, bool is_24h
 );
 
-Layer* date_time_layer_get_layer(DateTimeLayer* date_time_layer);
+Watchface* date_time_layer_get_watchface(
+    DateTimeLayer* date_time_layer
+);
+Layer* date_time_layer_get_layer(
+    DateTimeLayer* date_time_layer
+);
+Layer* date_time_layer_get_root_layer(
+    DateTimeLayer* date_time_layer
+);
 
 void date_time_layer_update_frame(
     DateTimeLayer* date_time_layer
