@@ -10,7 +10,7 @@ struct DateTimeLayer {
     TextLayer* date_layer;
 };
 
-GRect default_time_frame, default_date_frame;
+GRect default_time_frame, default_date_frame, nudged_up_date_frame;
 
 GRect date_time_layer_get_intended_time_frame(
     UIState* ui_state
@@ -32,10 +32,15 @@ GRect date_time_layer_get_intended_date_frame(
 ) {
     GRect frame = default_date_frame;
     
-    if(ui_state->statusbar_visible && ui_state->weather_visible) {
+    bool auxiliary_visible = ui_state->weather_visible
+                          || ui_state->disconnected_visible;
+    if(ui_state->disconnected_visible) {
+        frame = nudged_up_date_frame;
+    }
+    if(ui_state->statusbar_visible && auxiliary_visible) {
         frame.origin.y += 4;
     }
-    else if(!ui_state->weather_visible) {
+    else if(!auxiliary_visible) {
         frame.origin.y = 103;
     }
     
@@ -93,11 +98,14 @@ DateTimeLayer* date_time_layer_create(Watchface* watchface) {
     date_time_layer->layer = layer_create(frame);
     
     default_time_frame = GRect(0, 2, frame.size.w, frame.size.h-6);
-#ifdef LIGHT_WEATHER
-    default_date_frame = GRect(1, 66, frame.size.w, frame.size.h-62);
-#else
     default_date_frame = GRect(1, 74, frame.size.w, frame.size.h-62);
-#endif
+    nudged_up_date_frame = GRect(
+        default_date_frame.origin.x, default_date_frame.origin.y - 8,
+        default_date_frame.size.w,   default_date_frame.size.h
+    );
+    if(HAS_LIGHT_WEATHER) {
+        default_date_frame = nudged_up_date_frame;
+    }
     
     date_time_layer->time_layer = text_layer_create(default_time_frame);
     date_time_layer->date_layer = text_layer_create(default_date_frame);

@@ -88,11 +88,7 @@ WeatherLayer* weather_layer_create(Watchface* watchface) {
     
     WeatherLayer* weather_layer = malloc(sizeof(WeatherLayer));
     
-#ifdef LIGHT_WEATHER
-    bool inverted = true;
-#else
-    bool inverted = false;
-#endif
+    bool inverted = HAS_LIGHT_WEATHER;
     bool visible =
         watchface_get_ui_state(watchface)->weather_visible;
     
