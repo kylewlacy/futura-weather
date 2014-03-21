@@ -4,12 +4,12 @@
 #include "pebble.h"
 #include "ui_state.h"
 
-struct Watchface;
+typedef struct Watchface Watchface;
 
 typedef struct AuxiliaryLayer AuxiliaryLayer;
 
 AuxiliaryLayer* auxiliary_layer_create(
-    struct Watchface* watchface, bool inverted, bool visible
+    Watchface* watchface, bool visible, bool inverted
 );
 void auxiliary_layer_destroy(AuxiliaryLayer* auxiliary_layer);
 

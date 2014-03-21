@@ -4,6 +4,7 @@
 typedef struct UIState {
     bool statusbar_visible;
     bool weather_visible;
+    bool disconnected_visible;
 } UIState;
 
 #endif

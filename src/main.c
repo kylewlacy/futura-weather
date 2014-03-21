@@ -16,19 +16,6 @@ static Weather* weather;
 
 
 
-bool has_internet_connection(Weather* weather) {
-    // If weather has needed an update for a minute or over, then the
-    // user likely doesn't have an internet connection (since the
-    // phone should have already responded with new weather info).
-    bool has_internet = !weather_needs_update(
-        weather,
-        prefs->weather_update_freq + 60
-    );
-    return has_internet;
-}
-
-
-
 void change_preferences(Preferences* old_prefs, Preferences* new_prefs) {
     // old_prefs will be NULL for initialization (app first loaded)
     if(old_prefs == NULL || old_prefs->temp_format != new_prefs->temp_format) {
@@ -78,14 +65,6 @@ void update_weather_info(Weather* weather, bool animate) {
     }
 }
 
-void update_connection_info(bool bluetooth, bool internet) {
-    // TODO: Show layer in place of weather info
-}
-
-
-
-
-
 
 
 void out_sent_handler(DictionaryIterator* sent, void* context) {
@@ -107,12 +86,6 @@ void in_received_handler(DictionaryIterator* received, void* context) {
     if(set_weather) {
         weather_set(weather, received);
         update_weather_info(weather, true);
-        
-        // Receiving weather info means we (probably) have internet!
-        update_connection_info(
-            bluetooth_connection_service_peek(),
-            has_internet_connection(weather)
-        );
     }
     
     if(set_preferences) {
@@ -171,7 +144,8 @@ void window_load(Window* window) {
         .statusbar_visible = prefs->statusbar,
         .weather_visible = !weather_needs_update(
             weather, prefs->weather_outdated_time
-        )
+        ),
+        .disconnected_visible = !bluetooth_connection_service_peek()
     };
     
     watchface = watchface_create(window, initial_ui_state);
@@ -190,7 +164,6 @@ void window_load(Window* window) {
     // everything, since we're only drawing what we need)
     force_tick(ALL_UNITS);
     handle_battery(battery_state_service_peek());
-    handle_bluetooth(bluetooth_connection_service_peek());
 }
 
 void window_unload(Window* window) {
@@ -222,10 +195,6 @@ void handle_tick(struct tm* now, TimeUnits units_changed) {
     }
     if(outdated && watchface_get_ui_state(watchface)->weather_visible) {
         watchface_set_weather_visible(watchface, false, true);
-        update_connection_info(
-            bluetooth_connection_service_peek(),
-            has_internet_connection(weather)
-        );
     }
 }
 
@@ -236,7 +205,7 @@ void handle_battery(BatteryChargeState battery) {
 }
 
 void handle_bluetooth(bool connected) {
-    update_connection_info(connected, has_internet_connection(weather));
+    watchface_set_disconnected_visible(watchface, !connected, true);
     
     if(!connected) {
         vibes_long_pulse();

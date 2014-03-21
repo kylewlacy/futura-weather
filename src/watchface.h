@@ -9,6 +9,7 @@
 #include "layers/statusbar_layer.h"
 #include "layers/date_time_layer.h"
 #include "layers/weather_layer.h"
+#include "layers/disconnected_layer.h"
 
 typedef struct Watchface Watchface;
 
@@ -23,11 +24,15 @@ UIState* watchface_get_ui_state(Watchface* watchface);
 StatusbarLayer* watchface_get_statusbar_layer(Watchface* watchface);
 DateTimeLayer* watchface_get_date_time_layer(Watchface* watchface);
 WeatherLayer* watchface_get_weather_layer(Watchface* watchface);
+DisconnectedLayer* watchface_get_disconnected_layer(Watchface* watchface);
 
 void watchface_set_statusbar_visible(
     Watchface* watchface, bool visible, bool animate
 );
 void watchface_set_weather_visible(
+    Watchface* watchface, bool visible, bool animate
+);
+void watchface_set_disconnected_visible(
     Watchface* watchface, bool visible, bool animate
 );
 

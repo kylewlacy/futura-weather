@@ -66,7 +66,7 @@ uint32_t weather_layer_get_resource_for_conditions(
             break;
     }
     
-    return RESOURCE_ID_ICON_CLOUD_ERROR;
+    return RESOURCE_ID_ICON_WEATHER_ERROR;
 }
 
 GRect weather_layer_get_intended_frame(bool visible) {
@@ -97,7 +97,7 @@ WeatherLayer* weather_layer_create(Watchface* watchface) {
         watchface_get_ui_state(watchface)->weather_visible;
     
     weather_layer->auxiliary_layer = auxiliary_layer_create(
-        watchface, inverted, visible
+        watchface, visible, inverted
     );
     
     weather_layer->conditions_layer = bitmap_layer_create(GRect(9, 3, 60, 60));

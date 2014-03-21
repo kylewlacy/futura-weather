@@ -9,6 +9,7 @@ struct Watchface {
     StatusbarLayer* statusbar_layer;
     DateTimeLayer* date_time_layer;
     WeatherLayer* weather_layer;
+    DisconnectedLayer* disconnected_layer;
 };
 
 Watchface* watchface_create(Window* window, UIState initial_ui_state) {
@@ -26,6 +27,7 @@ Watchface* watchface_create(Window* window, UIState initial_ui_state) {
     watchface->statusbar_layer = statusbar_layer_create(watchface);
     watchface->date_time_layer = date_time_layer_create(watchface);
     watchface->weather_layer = weather_layer_create(watchface);
+    watchface->disconnected_layer = disconnected_layer_create(watchface);
     
     layer_add_child(
         watchface->layer,
@@ -39,12 +41,19 @@ Watchface* watchface_create(Window* window, UIState initial_ui_state) {
         watchface->layer,
         weather_layer_get_root_layer(watchface->weather_layer)
     );
+    layer_add_child(
+        watchface->layer,
+        disconnected_layer_get_root_layer(watchface->disconnected_layer)
+    );
     
     watchface_set_statusbar_visible(
         watchface, watchface->ui_state->statusbar_visible, false
     );
     watchface_set_weather_visible(
         watchface, watchface->ui_state->weather_visible, false
+    );
+    watchface_set_disconnected_visible(
+        watchface, watchface->ui_state->disconnected_visible, false
     );
     
     return watchface;
@@ -54,6 +63,7 @@ void watchface_destroy(Watchface* watchface) {
     weather_layer_destroy(watchface->weather_layer);
     date_time_layer_destroy(watchface->date_time_layer);
     statusbar_layer_destroy(watchface->statusbar_layer);
+    disconnected_layer_destroy(watchface->disconnected_layer);
     
     free(watchface->ui_state);
     font_collection_unload(watchface->fonts);
@@ -61,6 +71,8 @@ void watchface_destroy(Watchface* watchface) {
     
     free(watchface);
 }
+
+
 
 Layer* watchface_get_layer(Watchface* watchface) {
     return watchface->layer;
@@ -90,6 +102,10 @@ DateTimeLayer* watchface_get_date_time_layer(Watchface* watchface) {
 
 WeatherLayer* watchface_get_weather_layer(Watchface* watchface) {
     return watchface->weather_layer;
+}
+
+DisconnectedLayer* watchface_get_disconnected_layer(Watchface* watchface) {
+    return watchface->disconnected_layer;
 }
 
 
@@ -158,7 +174,7 @@ void watchface_set_weather_visible(
         // (which we don't want)
         // TODO: Move this out?
         layer_set_hidden(
-            weather_layer_get_layer(watchface->weather_layer), false
+            weather_layer_get_root_layer(watchface->weather_layer), false
         );
         
         Animation* time_animation = date_time_layer_create_time_animation(
@@ -189,6 +205,54 @@ void watchface_set_weather_visible(
         animation_schedule(time_animation);
         animation_schedule(date_animation);
         animation_schedule(weather_animation);
+    }
+    else {
+        weather_layer_set_visible(watchface->weather_layer, visible);
+        date_time_layer_update_frame(watchface->date_time_layer);
+    }
+}
+
+void watchface_set_disconnected_visible(
+    Watchface* watchface, bool visible, bool animate
+) {
+    watchface->ui_state->disconnected_visible = visible;
+    
+    if(animate) {
+        // The disconnected layer should be visible during animations.
+        // TODO: Move this out?
+        layer_set_hidden(
+            disconnected_layer_get_root_layer(watchface->disconnected_layer),
+            false
+        );
+        
+        Animation* time_animation = date_time_layer_create_time_animation(
+            watchface->date_time_layer
+        );
+        Animation* date_animation = date_time_layer_create_date_animation(
+            watchface->date_time_layer
+        );
+        Animation* disconnected_animation = disconnected_layer_create_animation(
+            watchface->disconnected_layer, visible
+        );
+        
+        animation_set_delay(time_animation, 300);
+        animation_set_delay(date_animation, 150);
+        animation_set_delay(disconnected_animation, 0);
+        
+        animation_set_duration(time_animation, 350);
+        animation_set_duration(date_animation, 350);
+        animation_set_duration(disconnected_animation, 350);
+        
+        animation_set_curve(
+            disconnected_animation,
+            visible ?
+                AnimationCurveEaseOut :
+                AnimationCurveEaseIn
+        );
+        
+        animation_schedule(time_animation);
+        animation_schedule(date_animation);
+        animation_schedule(disconnected_animation);
     }
     else {
         weather_layer_set_visible(watchface->weather_layer, visible);

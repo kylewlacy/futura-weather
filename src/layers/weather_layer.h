@@ -9,7 +9,7 @@ typedef struct Watchface Watchface;
 
 typedef struct WeatherLayer WeatherLayer;
 
-WeatherLayer* weather_layer_create(struct Watchface* watchface);
+WeatherLayer* weather_layer_create(Watchface* watchface);
 void weather_layer_destroy(WeatherLayer* weather_layer);
 
 Watchface* weather_layer_get_watchface(

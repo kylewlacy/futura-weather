@@ -12,8 +12,6 @@ void load_preferences();
 void save_preferences();
 void send_preferences();
 
-bool has_internet_connection();
-
 void change_preferences(Preferences* old_prefs, Preferences* new_prefs);
 void set_weather_visible(bool visible, bool animate);
 void set_weather_visible_animation_stopped_handler(

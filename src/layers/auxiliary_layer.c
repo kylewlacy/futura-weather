@@ -3,11 +3,9 @@
 #include "layers/auxiliary_layer.h"
 
 struct AuxiliaryLayer {
-    struct Watchface* watchface;
+    Watchface* watchface;
     Layer* layer;
     Layer* root_layer;
-    
-    bool inverted;
     
     InverterLayer* inverter_layer;
 };
@@ -26,7 +24,7 @@ GRect auxiliary_layer_get_intended_frame(bool visible) {
 
 
 AuxiliaryLayer* auxiliary_layer_create(
-    Watchface* watchface, bool inverted, bool visible
+    Watchface* watchface, bool visible, bool inverted
 ) {
     // This is a global variable because the frame of
     // `auxiliary->root_layer` is the size of Pebble's
@@ -77,6 +75,7 @@ void auxiliary_layer_destroy(AuxiliaryLayer* auxiliary_layer) {
     }
     
     layer_destroy(auxiliary_layer->layer);
+    layer_destroy(auxiliary_layer->root_layer);
     
     free(auxiliary_layer);
 }

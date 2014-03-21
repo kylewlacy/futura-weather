@@ -78,14 +78,14 @@
 				"file": "images/loading3.png"
 			},
 			{
-				"name": "ICON_CLOUD_ERROR",
+				"name": "ICON_WEATHER_ERROR",
 				"type": "png",
-				"file": "images/cloud-error.png"
+				"file": "images/weather-error.png"
 			},
 			{
-				"name": "ICON_PHONE_ERROR",
+				"name": "ICON_DISCONNECTED",
 				"type": "png",
-				"file": "images/phone-error.png"
+				"file": "images/disconnected.png"
 			},
 			{
 				"name": "WEATHER_CLEAR_DAY",
