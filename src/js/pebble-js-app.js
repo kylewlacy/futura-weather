@@ -533,7 +533,7 @@ function queryify(obj) {
 }
 
 var configURL =
-    "http://kylewlacy.github.io/futura-weather-redux/v3/preferences.html";
+    "https://kylewlacy.github.io/futura-weather/3.0.0/preferences.html";
 
 var prefs = new Preferences();
 var weather = new Weather();
