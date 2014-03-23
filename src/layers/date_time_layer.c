@@ -16,11 +16,13 @@ GRect date_time_layer_get_intended_time_frame(
     UIState* ui_state
 ) {
     GRect frame = default_time_frame;
+    bool auxiliary_visible = ui_state->weather_visible
+                          || ui_state->disconnected_visible;
     
-    if(ui_state->statusbar_visible && ui_state->weather_visible) {
+    if(ui_state->statusbar_visible && auxiliary_visible) {
         frame.origin.y += 8;
     }
-    else if(!ui_state->weather_visible) {
+    else if(!auxiliary_visible) {
         frame.origin.y = 30;
     }
     
