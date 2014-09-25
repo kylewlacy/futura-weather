@@ -158,7 +158,7 @@ function YrNoWeatherProvider() {
     }
     
     var updateWeatherCallback = function(req, coords) {
-        if(req.status == 200) {
+        if(req.status >= 200 && req.status < 300) {
             xmlStr = req.responseText;
             if (xmlStr) {
                 var newStr=xmlStr.replace(/(\r\n|\n|\r)/gm,"");
@@ -179,7 +179,7 @@ function YrNoWeatherProvider() {
         }
         else {
             console.warn(
-                "Error getting weather with OpenWeatherMap "
+                "Error getting weather with Yr "
                     + "(status " + req.status + ")"
             );
         }
@@ -491,9 +491,17 @@ function getProperties(obj) {
 
 function makeRequest(method, url, callback) {
     var req = new XMLHttpRequest();
+    var myTimeout = setTimeout(function(){
+        req.abort();
+        console.warn("Timeout when trying to fetch the weather");
+    }, 30000); 
+
     req.open(method, url, true);
     req.onload = function(e) {
-        if(req.readyState == 4) { callback(req); }
+        if(req.readyState == 4) { 
+            clearTimeout(myTimeout);
+            callback(req); 
+        }
     }
     req.send(null);
 }
@@ -551,7 +559,7 @@ var maxWeatherUpdateFreq = 10 * 60;
 
 
 function fetchWeather() {
-    if(
+    if( weather.conditions == 0 ||
         Math.round(Date.now()/1000) - weather.lastUpdate >= maxWeatherUpdateFreq
     ) {
         loc.getCurrentLocation(fetchWeatherFromLocation);
