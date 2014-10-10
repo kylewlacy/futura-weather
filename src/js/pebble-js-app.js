@@ -186,7 +186,7 @@ function YrNoWeatherProvider() {
     }
     
     this.updateWeather = function(weather, coords, callback) {
-        var url = "http://api.yr.no/weatherapi/locationforecastlts/1.1/"
+        var url = "http://api.yr.no/weatherapi/locationforecastlts/1.2/"
             + "?lat=" + coords.latitude
             + ";lon=" + coords.longitude;
         makeRequest(
@@ -490,6 +490,7 @@ function getProperties(obj) {
 }
 
 function makeRequest(method, url, callback) {
+//    console.warn("URL: " + url);
     var req = new XMLHttpRequest();
     var myTimeout = setTimeout(function(){
         req.abort();
