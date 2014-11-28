@@ -40,7 +40,7 @@ function Preferences() {
 
     this.asMessage = function() {
         var prefs = copyObject(getProperties(this));
-        prefs.translation = prepareString(prefs.translation);
+        prefs.translation = prefs.translation;
         
         return mergeObjects(prefs, {"setPrefs": 1});
     }
@@ -509,19 +509,6 @@ function makeRequest(method, url, callback) {
 
 function valueOrDefault(value, defaultValue) {
     return typeof(value) !== "undefined" ? value : defaultValue;
-}
-
-// Encodes string as byte array. Somehow,
-// this actually makes UTF-8 work properly
-// (even though JS uses UTF-16 internally).
-function prepareString(string) {
-    var bytes = [];
-    for(var i = 0; i < string.length; i++) {
-        bytes.push(string[i].charCodeAt(0));
-    }
-
-    bytes.push(0); // Null-terminate
-    return bytes;
 }
 
 function mergeObjects(a, b) {
